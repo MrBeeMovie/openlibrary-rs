@@ -6,3 +6,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+enum-display-derive = "0.1.1"
+scraper = "0.13.0"
+ureq = "2.5.0"
