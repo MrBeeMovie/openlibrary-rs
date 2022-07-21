@@ -39,9 +39,7 @@ impl Query {
         let a_selector = Selector::parse("a").unwrap();
         let re = Regex::new(r"\d\d*").unwrap();
 
-        let book_list = html.select(&tr_selector);
-
-        let books: Vec<Book> = book_list
+        html.select(&tr_selector)
             .map(|element_ref| {
                 element_ref
                     .select(&a_selector)
@@ -64,8 +62,6 @@ impl Query {
             })
             .map(|id| Book::new(id))
             .collect();
-
-        books
     }
 
     pub fn execute(&self) -> Vec<Book> {
