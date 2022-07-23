@@ -2,7 +2,24 @@ pub mod book;
 
 use serde_derive::{Deserialize, Serialize};
 
-const OPENLIBRARY_URL: &str = "https://openlibrary.org";
+pub mod openlibrary_request {
+    #[allow(dead_code)]
+    const OPENLIBRARY_URL: &str = "https://openlibrary.org";
+
+    pub fn search_url(search_term: &String, search_fields: &[String]) -> String {
+        #[cfg(not(test))]
+        let root_url = OPENLIBRARY_URL;
+        #[cfg(test)]
+        let root_url = mockito::server_url();
+
+        let search_fields = search_fields.join(",");
+
+        format!(
+            "{}/search.json?q={}&fields={}",
+            root_url, search_term, search_fields
+        )
+    }
+}
 
 #[derive(Serialize, Deserialize, Default, Debug)]
 #[serde(rename_all(serialize = "camelCase", deserialize = "camelCase"))]
@@ -41,22 +58,11 @@ impl Search {
     }
 
     pub fn execute(&self) -> SearchResult {
-        let search_fields = self.search_fields.join(",");
-
-        #[cfg(not(test))]
-        let url = format!(
-            "{}/search.json?q={}&fields={}",
-            OPENLIBRARY_URL, self.search_term, search_fields
-        );
-        #[cfg(test)]
-        let url = format!(
-            "{}/search.json?q={}&fields={}",
-            mockito::server_url(),
-            self.search_term,
-            search_fields
-        );
-
-        let response = reqwest::blocking::get(url).unwrap();
+        let response = reqwest::blocking::get(openlibrary_request::search_url(
+            &self.search_term,
+            &self.search_fields,
+        ))
+        .unwrap();
 
         response.json().unwrap()
     }
