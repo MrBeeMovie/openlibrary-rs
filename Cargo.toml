@@ -6,10 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-enum-display-derive = "0.1.1"
-regex = "1.6.0"
-scraper = "0.13.0"
-ureq = "2.5.0"
+reqwest = { version = "0.11.11", features = ["blocking", "json"] }
+serde = "1.0.140"
+serde_derive = "1.0.140"
+serde_json = "1.0.82"
 
 [dev-dependencies]
 mockito = "0.31.0"

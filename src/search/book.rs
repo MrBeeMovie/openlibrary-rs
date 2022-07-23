@@ -1,13 +1,4 @@
-#[derive(Default, Debug, PartialEq)]
+#[derive(Default, Debug)]
 pub struct Book {
-    pub id: u32,
-}
-
-impl Book {
-    pub fn new(id: u32) -> Book {
-        Book {
-            id,
-            ..Default::default()
-        }
-    }
+    pub key: String,
 }
