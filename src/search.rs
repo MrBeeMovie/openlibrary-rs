@@ -1,5 +1,3 @@
-use std::default;
-
 use derive_builder::Builder;
 use serde_derive::{Deserialize, Serialize};
 
@@ -21,8 +19,8 @@ pub mod openlibrary_request {
             search.query.as_deref().unwrap_or_default(),
             search.title.as_deref().unwrap_or_default(),
             search.author.as_deref().unwrap_or_default(),
-            search.page.unwrap_or_default(),
-            search.limit.unwrap_or_default(),
+            search.page,
+            search.limit,
             search
                 .fields
                 .as_deref()
@@ -58,16 +56,17 @@ pub struct Search {
     query: Option<String>,
     title: Option<String>,
     author: Option<String>,
-    #[builder(default = "Some(1)")]
-    page: Option<u32>,
-    #[builder(default = "Some(10)")]
-    limit: Option<u32>,
+    #[builder(default = "1")]
+    page: u32,
+    #[builder(default = "10")]
+    limit: u32,
     fields: Option<Vec<String>>,
 }
 
 impl Search {
     pub fn execute(&self) -> SearchResult {
-        let response = reqwest::blocking::get(openlibrary_request::search_url(self)).unwrap();
+        let url = openlibrary_request::search_url(self);
+        let response = reqwest::blocking::get(url).unwrap();
 
         response.json().unwrap()
     }
@@ -78,15 +77,23 @@ mod tests {
     use mockito::mock;
     use serde_json::{json, Value};
 
-    use super::{Search, SearchResult};
+    use super::{Search, SearchBuilder, SearchResult};
 
-    fn get_search_result(search_term: &str, search_fields: Vec<&str>, json: Value) -> SearchResult {
-        let search = Search::new(search_term, search_fields.clone());
-        let search_fields = search_fields.join(",");
+    fn get_search_result(search: Search, json: Value) -> SearchResult {
+        let search_fields = search.fields.as_deref().unwrap().join(",");
 
         let _m = mock(
             "GET",
-            format!("/search.json?q={}&fields={}", search_term, search_fields).as_str(),
+            format!(
+                "/search.json?q={}&title={}&author={}&page={}&limit={}&fields={}",
+                search.query.as_deref().unwrap_or_default(),
+                search.title.as_deref().unwrap_or_default(),
+                search.author.as_deref().unwrap_or_default(),
+                search.page,
+                search.limit,
+                search_fields
+            )
+            .as_str(),
         )
         .with_header("content-type", "application/json")
         .with_body(json.to_string())
@@ -97,8 +104,11 @@ mod tests {
 
     #[test]
     fn test_search_execute_valid_response() {
-        let search_term = "test";
-        let search_fields = vec!["key", "title"];
+        let search = SearchBuilder::default()
+            .query("test")
+            .fields(vec!["key".to_string(), "title".to_string()])
+            .build()
+            .unwrap();
 
         let json = json!({
                 "numFound": 1,
@@ -112,7 +122,7 @@ mod tests {
                 ]
         });
 
-        let search_result = get_search_result(search_term, search_fields, json);
+        let search_result = get_search_result(search, json);
 
         assert_eq!(search_result.num_found, 1);
         assert_eq!(search_result.start, 0);
