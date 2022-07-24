@@ -1,7 +1,12 @@
 [package]
-name = "metagetta"
+name = "openlibrary-rs"
 version = "0.1.0"
 edition = "2021"
+license = "GPL-3.0"
+description = "A wrapper around openlibrary's Web API."
+homepage = "https://github.com/MrBeeMovie/openlibrary-rs"
+repository = "https://github.com/MrBeeMovie/openlibrary-rs"
+readme = "./README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
