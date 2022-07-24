@@ -1,22 +1,34 @@
-pub mod book;
+use std::default;
 
+use derive_builder::Builder;
 use serde_derive::{Deserialize, Serialize};
 
 pub mod openlibrary_request {
+    use super::Search;
+
     #[allow(dead_code)]
     const OPENLIBRARY_URL: &str = "https://openlibrary.org";
 
-    pub fn search_url(search_term: &String, search_fields: &[String]) -> String {
+    pub fn search_url(search: &Search) -> String {
         #[cfg(not(test))]
-        let root_url = OPENLIBRARY_URL;
+        let root_url = OPENLIBRARY_URL.to_string();
         #[cfg(test)]
-        let root_url = mockito::server_url();
-
-        let search_fields = search_fields.join(",");
+        let root_url = mockito::server_url().to_string();
 
         format!(
-            "{}/search.json?q={}&fields={}",
-            root_url, search_term, search_fields
+            "{}/search.json?q={}&title={}&author={}&page={}&limit={}&fields={}",
+            root_url,
+            search.query.as_deref().unwrap_or_default(),
+            search.title.as_deref().unwrap_or_default(),
+            search.author.as_deref().unwrap_or_default(),
+            search.page.unwrap_or_default(),
+            search.limit.unwrap_or_default(),
+            search
+                .fields
+                .as_deref()
+                .unwrap_or_default()
+                .join(",")
+                .as_str()
         )
     }
 }
@@ -40,29 +52,22 @@ pub struct SearchResult {
     q: String,
 }
 
-#[derive(Default, Debug)]
+#[derive(Builder, Default, Debug)]
+#[builder(setter(into, strip_option), default)]
 pub struct Search {
-    search_term: String,
-    search_fields: Vec<String>,
+    query: Option<String>,
+    title: Option<String>,
+    author: Option<String>,
+    #[builder(default = "Some(1)")]
+    page: Option<u32>,
+    #[builder(default = "Some(10)")]
+    limit: Option<u32>,
+    fields: Option<Vec<String>>,
 }
 
 impl Search {
-    pub fn new(search_term: &str, search_fields: Vec<&str>) -> Search {
-        let search_term = String::from(search_term);
-        let search_fields = search_fields.into_iter().map(String::from).collect();
-
-        Search {
-            search_term,
-            search_fields,
-        }
-    }
-
     pub fn execute(&self) -> SearchResult {
-        let response = reqwest::blocking::get(openlibrary_request::search_url(
-            &self.search_term,
-            &self.search_fields,
-        ))
-        .unwrap();
+        let response = reqwest::blocking::get(openlibrary_request::search_url(self)).unwrap();
 
         response.json().unwrap()
     }
