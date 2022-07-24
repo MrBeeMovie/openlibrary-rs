@@ -32,22 +32,78 @@ pub mod openlibrary_request {
 }
 
 #[derive(Serialize, Deserialize, Default, Debug)]
-#[serde(rename_all(serialize = "camelCase", deserialize = "camelCase"))]
 #[serde(default)]
 pub struct SearchDoc {
-    key: String,
-    title: String,
+    pub key: String,
+    pub r#type: String,
+    pub seed: Vec<String>,
+    pub title: String,
+    pub title_suggest: String,
+    pub edition_count: u32,
+    pub edition_key: Vec<String>,
+    pub publish_date: Vec<String>,
+    pub publish_year: Vec<u32>,
+    pub first_publish_year: u32,
+    pub number_of_pages_median: u32,
+    pub lccn: Vec<String>,
+    pub publish_place: Vec<String>,
+    pub oclc: Vec<String>,
+    pub contributer: Vec<String>,
+    pub lcc: Vec<String>,
+    pub ddc: Vec<String>,
+    pub isbn: Vec<String>,
+    pub last_modified_i: u32,
+    pub ebook_count_i: u32,
+    pub has_fulltext: bool,
+    pub public_scan_b: bool,
+    pub ia: Vec<String>,
+    pub ia_collection_s: String,
+    pub lending_edition_s: String,
+    pub lending_identifier_s: String,
+    pub printdisabled_s: String,
+    pub cover_edition_key: String,
+    pub cover_i: u32,
+    pub publisher: Vec<String>,
+    pub language: Vec<String>,
+    pub author_key: Vec<String>,
+    pub author_name: Vec<String>,
+    pub author_alternative_name: Vec<String>,
+    pub person: Vec<String>,
+    pub place: Vec<String>,
+    pub subject: Vec<String>,
+    pub time: Vec<String>,
+    pub id_alibris_id: Vec<String>,
+    pub id_amazon: Vec<String>,
+    pub id_canadian_national_library_archive: Vec<String>,
+    pub id_goodreads: Vec<String>,
+    pub id_google: Vec<String>,
+    pub id_librarything: Vec<String>,
+    pub ia_loaded_id: Vec<String>,
+    pub ia_box_id: Vec<String>,
+    pub publisher_facet: Vec<String>,
+    pub person_key: Vec<String>,
+    pub place_key: Vec<String>,
+    pub time_facet: Vec<String>,
+    pub person_facet: Vec<String>,
+    pub subject_facet: Vec<String>,
+    pub _version_: u64,
+    pub place_facet: Vec<String>,
+    pub lcc_sort: String,
+    pub author_facet: Vec<String>,
+    pub subject_key: Vec<String>,
+    pub ddc_sort: String,
+    pub time_key: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Default, Debug)]
-#[serde(rename_all(serialize = "camelCase", deserialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 #[serde(default)]
 pub struct SearchResult {
-    num_found: u32,
-    start: u32,
-    num_found_exact: bool,
-    docs: Vec<SearchDoc>,
-    q: String,
+    pub num_found: u32,
+    pub start: u32,
+    pub num_found_exact: bool,
+    pub docs: Vec<SearchDoc>,
+    pub q: String,
 }
 
 #[derive(Builder, Default, Debug)]
