@@ -6,5 +6,5 @@ fn main() {
         .build()
         .unwrap();
 
-    println!("{:?}", results.execute().docs[0]);
+    println!("{:#?}", results.execute().docs[0]);
 }

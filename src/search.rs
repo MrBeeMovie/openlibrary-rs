@@ -21,12 +21,7 @@ pub mod openlibrary_request {
             search.author.as_deref().unwrap_or_default(),
             search.page,
             search.limit,
-            search
-                .fields
-                .as_deref()
-                .unwrap_or_default()
-                .join(",")
-                .as_str()
+            search.fields.join(",")
         )
     }
 }
@@ -116,7 +111,10 @@ pub struct Search {
     page: u32,
     #[builder(default = "10")]
     limit: u32,
-    fields: Option<Vec<String>>,
+    #[builder(
+        default = r#"vec!["title".to_string(), "key".to_string(), "type".to_string(), "edition_key".to_string()]"#
+    )]
+    fields: Vec<String>,
 }
 
 impl Search {
@@ -136,8 +134,6 @@ mod tests {
     use super::{Search, SearchBuilder, SearchResult};
 
     fn get_search_result(search: Search, json: Value) -> SearchResult {
-        let search_fields = search.fields.as_deref().unwrap().join(",");
-
         let _m = mock(
             "GET",
             format!(
@@ -147,7 +143,7 @@ mod tests {
                 search.author.as_deref().unwrap_or_default(),
                 search.page,
                 search.limit,
-                search_fields
+                search.fields.join(",")
             )
             .as_str(),
         )
