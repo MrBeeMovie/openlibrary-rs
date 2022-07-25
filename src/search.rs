@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Display};
 
 use derive_builder::Builder;
 use serde_derive::{Deserialize, Serialize};
@@ -12,23 +12,31 @@ pub mod openlibrary_request {
 
     pub fn search_url(search: &Search) -> String {
         #[cfg(not(test))]
-        let root_url = OPENLIBRARY_URL.to_string();
+        let mut url = OPENLIBRARY_URL.to_string();
         #[cfg(test)]
-        let root_url = mockito::server_url().to_string();
+        let mut url = mockito::server_url().to_string();
 
-        format!(
-            "{}/search.json?q={}&title={}&author={}&page={}&limit={}&fields={}",
-            root_url,
-            search.query.as_deref().unwrap_or_default(),
-            search.title.as_deref().unwrap_or_default(),
-            search.author.as_deref().unwrap_or_default(),
-            search.page,
-            search.limit,
-            search.fields.join(",")
-        )
+        url.push_str("/search");
+        url.push_str(search.search_type.to_string().as_str());
+
+        url.push_str(format!(".json?page={}&limit={}", search.page, search.limit,).as_str());
+
+        if let Some(query) = search.query.as_deref() {
+            url.push_str(format!("&q={}", query).as_str())
+        }
+
+        if !search.fields.is_empty() {
+            url.push_str(format!("&fields={}", search.fields.join(",")).as_str())
+        }
+
+        url
     }
 }
 
+/// The struct representation of a response from the [Search API](https://openlibrary.org/dev/docs/api/search)
+///
+/// The available doc fields in the response can be found as a part of [the managed-schema](https://github.com/internetarchive/openlibrary/blob/master/conf/solr/conf/managed-schema#L136-L216) defined in the Openlibrary repository.
+/// All doc fields are hashed by key into a [`Vec<HashMap<String, Value>>`].
 #[derive(Serialize, Deserialize, Default, Debug)]
 #[serde(rename_all = "camelCase")]
 #[serde(default)]
@@ -40,23 +48,73 @@ pub struct SearchResult {
     pub q: String,
 }
 
+#[derive(Default, Clone, Debug)]
+pub enum SearchType {
+    #[default]
+    Books,
+    Authors,
+    Subjects,
+    Lists,
+}
+
+impl Display for SearchType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Books => "",
+                Self::Authors => "/authors",
+                Self::Subjects => "/subjects",
+                Self::Lists => "/lists",
+            }
+        )
+    }
+}
+
+/// The struct representation of a request to the [Search API](https://openlibrary.org/dev/docs/api/search)[^note]
+///
+/// The fields of this struct are private. If you want to view available fields that you can set please look at the [`SearchBuilder`] struct.
+/// For more information on query strings and examples please view [Openlibrary's documentation](https://openlibrary.org/search/howto).
+///
+/// [^note]: you must use the [`SearchBuilder`] struct to build instance of the [`Search`] struct
 #[derive(Builder, Default, Debug)]
-#[builder(setter(into, strip_option), default)]
+#[builder(setter(into), default)]
 pub struct Search {
+    #[builder(setter(strip_option))]
     query: Option<String>,
-    title: Option<String>,
-    author: Option<String>,
+    search_type: SearchType,
     #[builder(default = "1")]
     page: u32,
     #[builder(default = "10")]
     limit: u32,
-    #[builder(
-        default = r#"vec!["title".to_string(), "key".to_string(), "type".to_string(), "edition_key".to_string()]"#
-    )]
+    #[builder(default = "vec![]")]
     fields: Vec<String>,
 }
 
 impl Search {
+    /// Function to execute the request defined by the struct and get back an instance of [`SearchResult`]
+    ///
+    /// Example
+    /// ```rust
+    /// use openlibrary_rs::search::{SearchBuilder, SearchType};
+    ///
+    /// let results = SearchBuilder::default()
+    ///     .query("the lord of the rings")
+    ///     .search_type(SearchType::Books)
+    ///     .page(1 as u32)
+    ///     .limit(1 as u32)
+    ///     .fields(
+    ///         vec!["key", "title", "edition_key"]
+    ///             .into_iter()
+    ///             .map(String::from)
+    ///             .collect::<Vec<String>>(),
+    ///    )
+    ///    .build()
+    ///    .unwrap();
+    ///
+    /// println!("{:#?}", results.execute().docs[0]);
+    /// ```
     pub fn execute(&self) -> SearchResult {
         let url = openlibrary_request::search_url(self);
         let response = reqwest::blocking::get(url).unwrap();
@@ -76,13 +134,11 @@ mod tests {
         let _m = mock(
             "GET",
             format!(
-                "/search.json?q={}&title={}&author={}&page={}&limit={}&fields={}",
-                search.query.as_deref().unwrap_or_default(),
-                search.title.as_deref().unwrap_or_default(),
-                search.author.as_deref().unwrap_or_default(),
+                "/search.json?page={}&limit={}&q={}&fields={}",
                 search.page,
                 search.limit,
-                search.fields.join(",")
+                search.query.as_deref().unwrap_or_default(),
+                search.fields.join(","),
             )
             .as_str(),
         )
@@ -97,7 +153,12 @@ mod tests {
     fn test_search_execute_valid_response() {
         let search = SearchBuilder::default()
             .query("test")
-            .fields(vec!["key".to_string(), "title".to_string()])
+            .fields(
+                ["key", "title"]
+                    .into_iter()
+                    .map(String::from)
+                    .collect::<Vec<String>>(),
+            )
             .build()
             .unwrap();
 

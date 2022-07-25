@@ -21,15 +21,13 @@
 //! ``` rust
 //! use openlibrary_rs::search::SearchBuilder;
 //!
-//! fn main() {
-//! 	// execute search and pretty print debug of first result
-//! 	let results = SearchBuilder::default()
-//! 		.query("the lord of the rings")
-//! 		.build()
-//! 		.unwrap();
+//! // execute search and pretty print debug of first result
+//! let results = SearchBuilder::default()
+//!     .query("the lord of the rings")
+//!     .build()
+//!     .unwrap();
 //!
-//! 	println!("{:#?}", results.execute().docs[0]);
-//! }
+//! println!("{:#?}", results.execute().docs[0]);
 //! ```
 //!
 //! [^note]: You must use the [`search::SearchBuilder`] to build instances of [`search::Search`] as all fields are private
