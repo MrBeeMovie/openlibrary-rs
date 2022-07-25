@@ -122,7 +122,7 @@ mod tests {
 
         let doc = &search_result.docs[0];
 
-        assert_eq!(doc.key, "/works/43242");
-        assert_eq!(doc.title, "test");
+        assert_eq!(doc.get("key").unwrap().as_str().unwrap(), "/works/43242");
+        assert_eq!(doc.get("title").unwrap().as_str().unwrap(), "test");
     }
 }
