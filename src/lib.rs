@@ -19,6 +19,8 @@
 //!
 //! Example
 //! ``` rust
+//! use openlibrary_rs::search::SearchBuilder;
+//!
 //! // execute search and pretty print debug of first result
 //! let results = SearchBuilder::default()
 //!     .query("the lord of the rings")

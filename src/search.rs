@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Display};
 
 use derive_builder::Builder;
 use serde_derive::{Deserialize, Serialize};
@@ -12,20 +12,25 @@ pub mod openlibrary_request {
 
     pub fn search_url(search: &Search) -> String {
         #[cfg(not(test))]
-        let root_url = OPENLIBRARY_URL.to_string();
+        let mut url = OPENLIBRARY_URL.to_string();
         #[cfg(test)]
-        let root_url = mockito::server_url().to_string();
+        let mut url = mockito::server_url().to_string();
 
-        format!(
-            "{}/search.json?q={}&title={}&author={}&page={}&limit={}&fields={}",
-            root_url,
-            search.query.as_deref().unwrap_or_default(),
-            search.title.as_deref().unwrap_or_default(),
-            search.author.as_deref().unwrap_or_default(),
-            search.page,
-            search.limit,
-            search.fields.join(",")
-        )
+        url.push_str("/search");
+        url.push_str(search.search_type.to_string().as_str());
+
+        url.push_str(format!(".json?page={}&limit={}", search.page, search.limit,).as_str());
+
+        match search.query.as_deref() {
+            Some(query) => url.push_str(format!("&q={}", query).as_str()),
+            None => (),
+        }
+
+        if !search.fields.is_empty() {
+            url.push_str(format!("&fields={}", search.fields.join(",")).as_str())
+        }
+
+        url
     }
 }
 
@@ -40,19 +45,41 @@ pub struct SearchResult {
     pub q: String,
 }
 
+#[derive(Default, Clone, Debug)]
+pub enum SearchType {
+    #[default]
+    Books,
+    Authors,
+    Subjects,
+    Lists,
+}
+
+impl Display for SearchType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Books => "",
+                Self::Authors => "/authors",
+                Self::Subjects => "/subjects",
+                Self::Lists => "/lists",
+            }
+        )
+    }
+}
+
 #[derive(Builder, Default, Debug)]
-#[builder(setter(into, strip_option), default)]
+#[builder(setter(into), default)]
 pub struct Search {
+    #[builder(setter(strip_option))]
     query: Option<String>,
-    title: Option<String>,
-    author: Option<String>,
+    search_type: SearchType,
     #[builder(default = "1")]
     page: u32,
     #[builder(default = "10")]
     limit: u32,
-    #[builder(
-        default = r#"vec!["title".to_string(), "key".to_string(), "type".to_string(), "edition_key".to_string()]"#
-    )]
+    #[builder(default = "vec![]")]
     fields: Vec<String>,
 }
 
@@ -76,13 +103,11 @@ mod tests {
         let _m = mock(
             "GET",
             format!(
-                "/search.json?q={}&title={}&author={}&page={}&limit={}&fields={}",
-                search.query.as_deref().unwrap_or_default(),
-                search.title.as_deref().unwrap_or_default(),
-                search.author.as_deref().unwrap_or_default(),
+                "/search.json?page={}&limit={}&q={}&fields={}",
                 search.page,
                 search.limit,
-                search.fields.join(",")
+                search.query.as_deref().unwrap_or_default(),
+                search.fields.join(","),
             )
             .as_str(),
         )
@@ -97,7 +122,12 @@ mod tests {
     fn test_search_execute_valid_response() {
         let search = SearchBuilder::default()
             .query("test")
-            .fields(vec!["key".to_string(), "title".to_string()])
+            .fields(
+                ["key", "title"]
+                    .into_iter()
+                    .map(String::from)
+                    .collect::<Vec<String>>(),
+            )
             .build()
             .unwrap();
 
