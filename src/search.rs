@@ -68,6 +68,12 @@ impl Display for SearchType {
     }
 }
 
+/// The struct representation of a request to the [Search API](https://openlibrary.org/dev/docs/api/search)[^note]
+///
+/// The fields of this struct are private. If you want to view available fields that you can set please look at the [`SearchBuilder`] struct.
+/// For more information on query strings and examples please view [Openlibrary's documentation](https://openlibrary.org/search/howto).
+///
+/// [^note]: you must use the [`SearchBuilder`] struct to build instance of the [`Search`] struct
 #[derive(Builder, Default, Debug)]
 #[builder(setter(into), default)]
 pub struct Search {
@@ -83,6 +89,28 @@ pub struct Search {
 }
 
 impl Search {
+    /// Function to execute the request defined by the struct and get back an instance of [`SearchResult`]
+    ///
+    /// Example
+    /// ```rust
+    /// use openlibrary_rs::search::{SearchBuilder, SearchType};
+    ///
+    /// let results = SearchBuilder::default()
+    ///     .query("the lord of the rings")
+    ///     .search_type(SearchType::Books)
+    ///     .page(1 as u32)
+    ///     .limit(1 as u32)
+    ///     .fields(
+    ///         vec!["key", "title", "edition_key"]
+    ///             .into_iter()
+    ///             .map(String::from)
+    ///             .collect::<Vec<String>>(),
+    ///    )
+    ///    .build()
+    ///    .unwrap();
+    ///
+    /// println!("{:#?}", results.execute().docs[0]);
+    /// ```
     pub fn execute(&self) -> SearchResult {
         let url = openlibrary_request::search_url(self);
         let response = reqwest::blocking::get(url).unwrap();
