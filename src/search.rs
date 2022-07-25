@@ -1,5 +1,8 @@
+use std::collections::HashMap;
+
 use derive_builder::Builder;
 use serde_derive::{Deserialize, Serialize};
+use serde_json::Value;
 
 pub mod openlibrary_request {
     use super::Search;
@@ -27,72 +30,13 @@ pub mod openlibrary_request {
 }
 
 #[derive(Serialize, Deserialize, Default, Debug)]
-#[serde(default)]
-pub struct SearchDoc {
-    pub key: String,
-    pub r#type: String,
-    pub has_fulltext: bool,
-    pub title: String,
-    pub title_suggest: String,
-    pub title_sort: String,
-    pub subtitle: String,
-    pub edition_count: u32,
-    pub edition_key: Vec<String>,
-    pub cover_edition_key: String,
-    pub publish_date: Vec<String>,
-    pub publish_year: Vec<u32>,
-    pub first_publish_year: u32,
-    pub language: Vec<String>,
-    pub number_of_pages_median: u32,
-    pub lccn: Vec<String>,
-    pub ia: Vec<String>,
-    pub ia_box_id: Vec<String>,
-    pub ia_loaded_id: Vec<String>,
-    pub ia_collection_s: String,
-    pub oclc: Vec<String>,
-    pub isbn: Vec<String>,
-    pub lcc: Vec<String>,
-    pub ddc: Vec<String>,
-    pub contributor: Vec<String>,
-    pub publish_place: Vec<String>,
-    pub publisher: Vec<String>,
-    pub first_sentence: Vec<String>,
-    pub author_key: Vec<String>,
-    pub author_name: Vec<String>,
-    pub author_alternative_name: Vec<String>,
-    pub subject: Vec<String>,
-    pub place: Vec<String>,
-    pub time: Vec<String>,
-    pub seed: Vec<String>,
-
-    // author fields
-    pub name: String,
-    pub alternate_names: Vec<String>,
-    pub birth_date: String,
-    pub death_date: String,
-    pub date: String,
-    pub work_count: u32,
-    pub top_work: String,
-    pub top_subjects: Vec<String>,
-
-    // subject fields
-    pub subject_type: String,
-
-    // dynamic fields
-    pub id_goodreads: Vec<String>,
-    pub id_amazon: Vec<String>,
-    pub id_google: Vec<String>,
-    pub id_wikidata: Vec<String>,
-}
-
-#[derive(Serialize, Deserialize, Default, Debug)]
 #[serde(rename_all = "camelCase")]
 #[serde(default)]
 pub struct SearchResult {
     pub num_found: u32,
     pub start: u32,
     pub num_found_exact: bool,
-    pub docs: Vec<SearchDoc>,
+    pub docs: Vec<HashMap<String, Value>>,
     pub q: String,
 }
 
