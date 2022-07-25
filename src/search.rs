@@ -21,9 +21,8 @@ pub mod openlibrary_request {
 
         url.push_str(format!(".json?page={}&limit={}", search.page, search.limit,).as_str());
 
-        match search.query.as_deref() {
-            Some(query) => url.push_str(format!("&q={}", query).as_str()),
-            None => (),
+        if let Some(query) = search.query.as_deref() {
+            url.push_str(format!("&q={}", query).as_str())
         }
 
         if !search.fields.is_empty() {
