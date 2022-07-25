@@ -33,6 +33,10 @@ pub mod openlibrary_request {
     }
 }
 
+/// The struct representation of a response from the [Search API](https://openlibrary.org/dev/docs/api/search)
+///
+/// The available doc fields in the response can be found as a part of [the managed-schema](https://github.com/internetarchive/openlibrary/blob/master/conf/solr/conf/managed-schema#L136-L216) defined in the Openlibrary repository.
+/// All doc fields are hashed by key into a [`Vec<HashMap<String, Value>>`].
 #[derive(Serialize, Deserialize, Default, Debug)]
 #[serde(rename_all = "camelCase")]
 #[serde(default)]
