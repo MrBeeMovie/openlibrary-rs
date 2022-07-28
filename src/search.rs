@@ -1,37 +1,8 @@
-use std::{collections::HashMap, fmt::Display};
-
+use crate::OpenlibraryRequest;
 use derive_builder::Builder;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::Value;
-
-pub mod openlibrary_request {
-    use super::Search;
-
-    #[allow(dead_code)]
-    const OPENLIBRARY_URL: &str = "https://openlibrary.org";
-
-    pub fn search_url(search: &Search) -> String {
-        #[cfg(not(test))]
-        let mut url = OPENLIBRARY_URL.to_string();
-        #[cfg(test)]
-        let mut url = mockito::server_url().to_string();
-
-        url.push_str("/search");
-        url.push_str(search.search_type.to_string().as_str());
-
-        url.push_str(format!(".json?page={}&limit={}", search.page, search.limit,).as_str());
-
-        if let Some(query) = search.query.as_deref() {
-            url.push_str(format!("&q={}", query).as_str())
-        }
-
-        if !search.fields.is_empty() {
-            url.push_str(format!("&fields={}", search.fields.join(",")).as_str())
-        }
-
-        url
-    }
-}
+use std::{collections::HashMap, fmt::Display};
 
 /// The struct representation of a response from the [Search API](https://openlibrary.org/dev/docs/api/search)
 ///
@@ -82,14 +53,14 @@ impl Display for SearchType {
 #[builder(setter(into), default)]
 pub struct Search {
     #[builder(setter(strip_option))]
-    query: Option<String>,
-    search_type: SearchType,
+    pub query: Option<String>,
+    pub search_type: SearchType,
     #[builder(default = "1")]
-    page: u32,
+    pub page: u32,
     #[builder(default = "10")]
-    limit: u32,
+    pub limit: u32,
     #[builder(default = "vec![]")]
-    fields: Vec<String>,
+    pub fields: Vec<String>,
 }
 
 impl Search {
@@ -116,8 +87,8 @@ impl Search {
     /// println!("{:#?}", results.execute().docs[0]);
     /// ```
     pub fn execute(&self) -> SearchResult {
-        let url = openlibrary_request::search_url(self);
-        let response = reqwest::blocking::get(url).unwrap();
+        let request = OpenlibraryRequest::search_request(self);
+        let response = request.execute().unwrap();
 
         response.json().unwrap()
     }
