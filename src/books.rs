@@ -46,3 +46,38 @@ impl Books {
         response.json().unwrap()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use mockito::mock;
+    use serde_json::json;
+
+    use crate::OpenlibraryRequest;
+
+    use super::BooksBuilder;
+
+    #[test]
+    fn test_books_execute_valid_response() {
+        let books = BooksBuilder::default().id("1234").build().unwrap();
+
+        let json = json!({
+            "title": "test",
+            "description": "this is a test",
+            "key": "/works/1234"
+        });
+
+        let request = OpenlibraryRequest::books_request(&books);
+        let endpoint = &request.url[request.url.find("/works").unwrap()..];
+
+        let _m = mock("GET", endpoint)
+            .with_header("content-type", "application/json")
+            .with_body(json.to_string())
+            .create();
+
+        let books_result = books.execute();
+
+        assert_eq!(books_result.get("title").unwrap(), "test");
+        assert_eq!(books_result.get("description").unwrap(), "this is a test");
+        assert_eq!(books_result.get("key").unwrap(), "/works/1234");
+    }
+}
