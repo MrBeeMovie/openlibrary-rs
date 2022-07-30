@@ -2,8 +2,8 @@ use openlibrary_rs::books::{BookType, BooksBuilder};
 
 fn main() {
     let books = BooksBuilder::default()
-        .book_type(BookType::ISBN)
-        .id("9780140328721")
+        .book_type(BookType::Works)
+        .id("OL45883W")
         .build()
         .unwrap();
 
