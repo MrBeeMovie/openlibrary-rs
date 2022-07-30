@@ -1,8 +1,10 @@
-use crate::OpenlibraryRequest;
+use std::{collections::HashMap, fmt::Display};
+
 use derive_builder::Builder;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::Value;
-use std::{collections::HashMap, fmt::Display};
+
+use crate::OpenlibraryRequest;
 
 /// The struct representation of a response from the [Search API](https://openlibrary.org/dev/docs/api/search)
 ///
@@ -89,6 +91,7 @@ impl Search {
     pub fn execute(&self) -> SearchResult {
         let request = OpenlibraryRequest::search_request(self);
         let response = request.execute().unwrap();
+        println!("{:#?}", response);
 
         response.json().unwrap()
     }
@@ -97,28 +100,11 @@ impl Search {
 #[cfg(test)]
 mod tests {
     use mockito::mock;
-    use serde_json::{json, Value};
+    use serde_json::json;
 
-    use super::{Search, SearchBuilder, SearchResult};
+    use crate::OpenlibraryRequest;
 
-    fn get_search_result(search: Search, json: Value) -> SearchResult {
-        let _m = mock(
-            "GET",
-            format!(
-                "/search.json?page={}&limit={}&q={}&fields={}",
-                search.page,
-                search.limit,
-                search.query.as_deref().unwrap_or_default(),
-                search.fields.join(","),
-            )
-            .as_str(),
-        )
-        .with_header("content-type", "application/json")
-        .with_body(json.to_string())
-        .create();
-
-        search.execute()
-    }
+    use super::SearchBuilder;
 
     #[test]
     fn test_search_execute_valid_response() {
@@ -145,7 +131,15 @@ mod tests {
                 ]
         });
 
-        let search_result = get_search_result(search, json);
+        let request = OpenlibraryRequest::search_request(&search);
+        let endpoint = &request.url[request.url.find("/search").unwrap()..];
+
+        let _m = mock("GET", endpoint)
+            .with_header("content-type", "application/json")
+            .with_body(json.to_string())
+            .create();
+
+        let search_result = search.execute();
 
         assert_eq!(search_result.num_found, 1);
         assert_eq!(search_result.start, 0);

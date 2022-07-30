@@ -1,6 +1,7 @@
+use std::{collections::HashMap, fmt::Display};
+
 use derive_builder::Builder;
 use serde_json::Value;
-use std::{collections::HashMap, fmt::Display};
 
 use crate::OpenlibraryRequest;
 

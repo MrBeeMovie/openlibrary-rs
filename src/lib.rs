@@ -38,10 +38,11 @@ const OPENLIBRARY_URL: &str = "https://openlibrary.org";
 pub mod books;
 pub mod search;
 
-use books::Books;
 use reqwest::blocking::Response as ReqwestResponse;
 use reqwest::Result as ReqwestResult;
-use search::Search;
+
+use crate::books::Books;
+use crate::search::Search;
 
 pub struct OpenlibraryRequest {
     url: String,
