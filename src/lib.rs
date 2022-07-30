@@ -87,3 +87,32 @@ impl OpenlibraryRequest {
         reqwest::blocking::get(self.url.as_str())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::books::BooksBuilder;
+    use crate::search::SearchBuilder;
+    use crate::OpenlibraryRequest;
+
+    #[test]
+    pub fn test_search_request() {
+        let search = SearchBuilder::default().build().unwrap();
+        let search_request = OpenlibraryRequest::search_request(&search);
+
+        assert_eq!(
+            search_request.url,
+            format!("{}/search.json?page=1&limit=10", mockito::server_url())
+        )
+    }
+
+    #[test]
+    pub fn test_books_request() {
+        let books = BooksBuilder::default().id("1234").build().unwrap();
+        let books_request = OpenlibraryRequest::books_request(&books);
+
+        assert_eq!(
+            books_request.url,
+            format!("{}/works/1234.json", mockito::server_url())
+        )
+    }
+}
