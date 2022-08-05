@@ -1,13 +1,13 @@
 # openlibrary-rs
-Wrapper for [Openlibrary's Web API](https://openlibrary.org/developers/api)!
+Wrapper for [Openlibrary's Web API](https://openlibrary.org/developers/api)
 
-# Overview!
+# Overview
 
 **PLEASE NOTE**: this crate is currently in an experimental stage.
-Meaning expect frequent, large breaking changes from version to version until we are in a stable state.!
+Meaning expect frequent, large breaking changes from version to version until we are in a stable state.
 
 There are currently 8 sub APIs offered by Openlibrary's Web API.
-You can check the table below to see the status of each.!
+You can check the table below to see the status of each.
 
 - [X] [Books](https://openlibrary.org/dev/docs/api/books)
 - [ ] [Authors](https://openlibrary.org/dev/docs/api/authors)
