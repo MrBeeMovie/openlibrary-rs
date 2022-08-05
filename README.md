@@ -1,3 +1,4 @@
+# openlibrary-rs
 Wrapper for [Openlibrary's Web API](https://openlibrary.org/developers/api)!
 
 # Overview!
