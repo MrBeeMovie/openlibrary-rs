@@ -4,6 +4,8 @@ version = "0.1.2"
 edition = "2021"
 license = "GPL-3.0"
 description = "A wrapper around openlibrary's Web API."
+categories = ["api-bindings"]
+keywords = ["Openlibrary", "books", "ebooks"]
 repository = "https://github.com/MrBeeMovie/openlibrary-rs"
 readme = "./README.md"
 
