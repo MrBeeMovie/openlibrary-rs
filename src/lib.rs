@@ -2,11 +2,10 @@
 //!
 //! # Overview
 //!
-//! **PLEASE NOTE**: this library is currently in an experimental stage.
+//! **PLEASE NOTE**: this crate is currently in an experimental stage.
 //! Meaning expect frequent, large breaking changes from version to version until we are in a stable state.
 //!
 //! There are currently 8 sub APIs offered by Openlibrary's Web API.
-//! This library is still in development and does not have a wrapper for each yet.
 //! You can check the table below to see the status of each.
 //!
 //! - [X] [Books](https://openlibrary.org/dev/docs/api/books) [^books_completeness]
@@ -66,7 +65,7 @@ use reqwest::Result as ReqwestResult;
 use crate::books::Books;
 use crate::search::Search;
 
-pub struct OpenlibraryRequest {
+struct OpenlibraryRequest {
     url: String,
 }
 
