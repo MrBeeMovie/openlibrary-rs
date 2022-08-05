@@ -34,8 +34,8 @@ impl Display for BookType {
 #[derive(Builder, Default, Debug)]
 #[builder(setter(into), default)]
 pub struct Books {
-    pub book_type: BookType,
-    pub id: String,
+    pub(super) book_type: BookType,
+    pub(super) id: String,
 }
 
 impl Books {

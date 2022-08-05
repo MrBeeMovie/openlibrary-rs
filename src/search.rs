@@ -55,14 +55,14 @@ impl Display for SearchType {
 #[builder(setter(into), default)]
 pub struct Search {
     #[builder(setter(strip_option))]
-    pub query: Option<String>,
-    pub search_type: SearchType,
+    pub(super) query: Option<String>,
+    pub(super) search_type: SearchType,
     #[builder(default = "1")]
-    pub page: u32,
+    pub(super) page: u32,
     #[builder(default = "10")]
-    pub limit: u32,
+    pub(super) limit: u32,
     #[builder(default = "vec![]")]
-    pub fields: Vec<String>,
+    pub(super) fields: Vec<String>,
 }
 
 impl Search {
