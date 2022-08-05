@@ -45,28 +45,26 @@ impl Display for SearchType {
     }
 }
 
-/// The struct representation of a request to the [Search API](https://openlibrary.org/dev/docs/api/search)[^note]
+/// The struct representation of a request to the [Search API](https://openlibrary.org/dev/docs/api/search)
 ///
-/// The fields of this struct are private. If you want to view available fields that you can set please look at the [`SearchBuilder`] struct.
+/// The fields of this struct are private. If you want to view available fields that can be set please look at the [`SearchBuilder`] struct.
 /// For more information on query strings and examples please view [Openlibrary's documentation](https://openlibrary.org/search/howto).
-///
-/// [^note]: you must use the [`SearchBuilder`] struct to build instance of the [`Search`] struct
 #[derive(Builder, Default, Debug)]
 #[builder(setter(into), default)]
 pub struct Search {
     #[builder(setter(strip_option))]
-    pub query: Option<String>,
-    pub search_type: SearchType,
+    pub(super) query: Option<String>,
+    pub(super) search_type: SearchType,
     #[builder(default = "1")]
-    pub page: u32,
+    pub(super) page: u32,
     #[builder(default = "10")]
-    pub limit: u32,
+    pub(super) limit: u32,
     #[builder(default = "vec![]")]
-    pub fields: Vec<String>,
+    pub(super) fields: Vec<String>,
 }
 
 impl Search {
-    /// Function to execute the request defined by the struct and get back an instance of [`SearchResult`]
+    /// Function to execute the request defined by the struct and get back a response
     ///
     /// Example
     /// ```rust

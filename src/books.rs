@@ -5,10 +5,6 @@ use serde_json::Value;
 
 use crate::OpenlibraryRequest;
 
-pub struct BooksResult {
-    pub fields: Vec<HashMap<String, Value>>,
-}
-
 #[derive(Default, Clone, Debug)]
 pub enum BookType {
     #[default]
@@ -31,14 +27,31 @@ impl Display for BookType {
     }
 }
 
+/// The struct representation of a request to the [Books API](https://openlibrary.org/dev/docs/api/books)
+///
+/// The fields of this struct are private. If you want to view available fields that can be set please look at the [`BooksBuilder`] struct.
 #[derive(Builder, Default, Debug)]
 #[builder(setter(into), default)]
 pub struct Books {
-    pub book_type: BookType,
-    pub id: String,
+    pub(super) book_type: BookType,
+    pub(super) id: String,
 }
 
 impl Books {
+    /// Function to execute the request defined by the struct and get back a response
+    ///
+    /// Example
+    /// ```rust
+    /// use openlibrary_rs::books::{BooksBuilder, BookType};
+    ///
+    /// let results = BooksBuilder::default()
+    ///    .book_type(BookType::Works)
+    ///    .id("OL45883W")
+    ///    .build()
+    ///    .unwrap();
+    ///
+    /// println!("{:#?}", results.execute());
+    /// ```
     pub fn execute(&self) -> HashMap<String, Value> {
         let request = OpenlibraryRequest::books_request(self);
         let response = request.execute().unwrap();

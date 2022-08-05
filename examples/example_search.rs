@@ -1,10 +1,10 @@
 use openlibrary_rs::search::SearchBuilder;
 
 fn main() {
-    let results = SearchBuilder::default()
+    let search = SearchBuilder::default()
         .query("the lord of the rings")
         .build()
         .unwrap();
 
-    println!("{:#?}", results.execute().docs[0]);
+    println!("{:#?}", search.execute().docs[0]);
 }
