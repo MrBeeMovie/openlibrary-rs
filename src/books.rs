@@ -19,9 +19,9 @@ impl Display for BookType {
             f,
             "{}",
             match self {
-                Self::Works => "/works",
-                Self::Editions => "/books",
-                Self::ISBN => "/isbn",
+                Self::Works => "works",
+                Self::Editions => "books",
+                Self::ISBN => "isbn",
             }
         )
     }
