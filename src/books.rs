@@ -1,6 +1,7 @@
 use std::fmt::Display;
 
 use derive_builder::Builder;
+use reqwest::Url;
 
 use crate::OpenlibraryRequest;
 
@@ -37,11 +38,9 @@ pub struct Books {
 }
 
 impl OpenlibraryRequest for Books {
-    fn full_url(&self) -> String {
-        let mut url = Self::root_url();
-        url.push_str(format!("{}/{}.json", self.book_type, self.id).as_str());
-
-        url
+    fn url(&self) -> Url {
+        Url::parse(format!("{}/{}/{}.json", Self::host(), self.book_type, self.id).as_str())
+            .unwrap()
     }
 }
 
@@ -64,10 +63,7 @@ mod tests {
             "key": "/works/1234"
         });
 
-        let url = books.full_url();
-        let endpoint = &url[url.find("/works").unwrap()..];
-
-        let _m = mock("GET", endpoint)
+        let _m = mock("GET", books.url().path())
             .with_header("content-type", "application/json")
             .with_body(json.to_string())
             .create();

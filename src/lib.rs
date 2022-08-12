@@ -54,26 +54,27 @@
 //!
 //! [^books_completeness]: Everything excluding the generic Books API is complete(i.e. Works, Editions, and ISBN APIs are done).
 //!
+use reqwest::Url;
 use serde_json::Value;
 
 #[allow(dead_code)]
-const OPENLIBRARY_URL: &str = "https://openlibrary.org";
+const OPENLIBRARY_HOST: &str = "https://openlibrary.org";
 
 pub mod books;
 pub mod search;
 
 pub trait OpenlibraryRequest {
-    fn root_url() -> String {
+    fn host() -> String {
         #[cfg(not(test))]
-        return OPENLIBRARY_URL.to_string();
+        return OPENLIBRARY_HOST.to_string();
         #[cfg(test)]
         return mockito::server_url().to_string();
     }
 
-    fn full_url(&self) -> String;
+    fn url(&self) -> Url;
 
     fn execute(&self) -> Value {
-        let response = reqwest::blocking::get(&self.full_url()).unwrap();
+        let response = reqwest::blocking::get(self.url()).unwrap();
         response.json().unwrap()
     }
 }

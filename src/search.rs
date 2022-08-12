@@ -1,6 +1,7 @@
 use std::fmt::Display;
 
 use derive_builder::Builder;
+use reqwest::Url;
 
 use crate::OpenlibraryRequest;
 
@@ -47,23 +48,18 @@ pub struct Search {
 }
 
 impl OpenlibraryRequest for Search {
-    fn full_url(&self) -> String {
-        let mut url = Self::root_url();
+    fn url(&self) -> Url {
+        let mut params = Vec::new();
+        params.push(("page", self.page.to_string()));
+        params.push(("limit", self.limit.to_string()));
+        params.push(("q", self.query.as_deref().unwrap_or_default().to_string()));
+        params.push(("fields", self.fields.join(",")));
 
-        url.push_str("/search");
-        url.push_str(self.search_type.to_string().as_str());
-
-        url.push_str(format!(".json?page={}&limit={}", self.page, self.limit,).as_str());
-
-        if let Some(query) = self.query.as_deref() {
-            url.push_str(format!("&q={}", query).as_str())
-        }
-
-        if !self.fields.is_empty() {
-            url.push_str(format!("&fields={}", self.fields.join(",")).as_str())
-        }
-
-        url
+        Url::parse_with_params(
+            format!("{}/search{}.json", Self::host(), self.search_type,).as_str(),
+            params,
+        )
+        .unwrap()
     }
 }
 
@@ -101,13 +97,13 @@ mod tests {
                 ]
         });
 
-        let url = search.full_url();
-        let endpoint = &url[url.find("/search").unwrap()..];
-
-        let _m = mock("GET", endpoint)
-            .with_header("content-type", "application/json")
-            .with_body(json.to_string())
-            .create();
+        let _m = mock(
+            "GET",
+            format!("{}?{}", search.url().path(), search.url().query().unwrap()).as_str(),
+        )
+        .with_header("content-type", "application/json")
+        .with_body(json.to_string())
+        .create();
 
         let search_result = search.execute();
 
