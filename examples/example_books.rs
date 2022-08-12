@@ -1,4 +1,5 @@
 use openlibrary_rs::books::{BookType, BooksBuilder};
+use openlibrary_rs::OpenlibraryRequest;
 
 fn main() {
     let books = BooksBuilder::default()

@@ -1,7 +1,6 @@
-use std::{collections::HashMap, fmt::Display};
+use std::fmt::Display;
 
 use derive_builder::Builder;
-use serde_json::Value;
 
 use crate::OpenlibraryRequest;
 
@@ -33,30 +32,16 @@ impl Display for BookType {
 #[derive(Builder, Default, Debug)]
 #[builder(setter(into), default)]
 pub struct Books {
-    pub(super) book_type: BookType,
-    pub(super) id: String,
+    book_type: BookType,
+    id: String,
 }
 
-impl Books {
-    /// Function to execute the request defined by the struct and get back a response
-    ///
-    /// Example
-    /// ```rust
-    /// use openlibrary_rs::books::{BooksBuilder, BookType};
-    ///
-    /// let results = BooksBuilder::default()
-    ///    .book_type(BookType::Works)
-    ///    .id("OL45883W")
-    ///    .build()
-    ///    .unwrap();
-    ///
-    /// println!("{:#?}", results.execute());
-    /// ```
-    pub fn execute(&self) -> HashMap<String, Value> {
-        let request = OpenlibraryRequest::books_request(self);
-        let response = request.execute().unwrap();
+impl OpenlibraryRequest for Books {
+    fn full_url(&self) -> String {
+        let mut url = Self::root_url();
+        url.push_str(format!("{}/{}.json", self.book_type, self.id).as_str());
 
-        response.json().unwrap()
+        url
     }
 }
 
@@ -79,8 +64,8 @@ mod tests {
             "key": "/works/1234"
         });
 
-        let request = OpenlibraryRequest::books_request(&books);
-        let endpoint = &request.url[request.url.find("/works").unwrap()..];
+        let url = books.full_url();
+        let endpoint = &url[url.find("/works").unwrap()..];
 
         let _m = mock("GET", endpoint)
             .with_header("content-type", "application/json")
@@ -89,8 +74,8 @@ mod tests {
 
         let books_result = books.execute();
 
-        assert_eq!(books_result.get("title").unwrap(), "test");
-        assert_eq!(books_result.get("description").unwrap(), "this is a test");
-        assert_eq!(books_result.get("key").unwrap(), "/works/1234");
+        assert_eq!(books_result["title"], "test");
+        assert_eq!(books_result["description"], "this is a test");
+        assert_eq!(books_result["key"], "/works/1234");
     }
 }

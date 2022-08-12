@@ -1,25 +1,8 @@
-use std::{collections::HashMap, fmt::Display};
+use std::fmt::Display;
 
 use derive_builder::Builder;
-use serde_derive::{Deserialize, Serialize};
-use serde_json::Value;
 
 use crate::OpenlibraryRequest;
-
-/// The struct representation of a response from the [Search API](https://openlibrary.org/dev/docs/api/search)
-///
-/// The available doc fields in the response can be found as a part of [the managed-schema](https://github.com/internetarchive/openlibrary/blob/master/conf/solr/conf/managed-schema#L136-L216) defined in the Openlibrary repository.
-/// All doc fields are hashed by key into a [`Vec<HashMap<String, Value>>`].
-#[derive(Serialize, Deserialize, Default, Debug)]
-#[serde(rename_all = "camelCase")]
-#[serde(default)]
-pub struct SearchResult {
-    pub num_found: u32,
-    pub start: u32,
-    pub num_found_exact: bool,
-    pub docs: Vec<HashMap<String, Value>>,
-    pub q: String,
-}
 
 #[derive(Default, Clone, Debug)]
 pub enum SearchType {
@@ -53,45 +36,34 @@ impl Display for SearchType {
 #[builder(setter(into), default)]
 pub struct Search {
     #[builder(setter(strip_option))]
-    pub(super) query: Option<String>,
-    pub(super) search_type: SearchType,
+    query: Option<String>,
+    search_type: SearchType,
     #[builder(default = "1")]
-    pub(super) page: u32,
+    page: u32,
     #[builder(default = "10")]
-    pub(super) limit: u32,
+    limit: u32,
     #[builder(default = "vec![]")]
-    pub(super) fields: Vec<String>,
+    fields: Vec<String>,
 }
 
-impl Search {
-    /// Function to execute the request defined by the struct and get back a response
-    ///
-    /// Example
-    /// ```rust
-    /// use openlibrary_rs::search::{SearchBuilder, SearchType};
-    ///
-    /// let results = SearchBuilder::default()
-    ///     .query("the lord of the rings")
-    ///     .search_type(SearchType::Books)
-    ///     .page(1 as u32)
-    ///     .limit(1 as u32)
-    ///     .fields(
-    ///         vec!["key", "title", "edition_key"]
-    ///             .into_iter()
-    ///             .map(String::from)
-    ///             .collect::<Vec<String>>(),
-    ///    )
-    ///    .build()
-    ///    .unwrap();
-    ///
-    /// println!("{:#?}", results.execute().docs[0]);
-    /// ```
-    pub fn execute(&self) -> SearchResult {
-        let request = OpenlibraryRequest::search_request(self);
-        let response = request.execute().unwrap();
-        println!("{:#?}", response);
+impl OpenlibraryRequest for Search {
+    fn full_url(&self) -> String {
+        let mut url = Self::root_url();
 
-        response.json().unwrap()
+        url.push_str("/search");
+        url.push_str(self.search_type.to_string().as_str());
+
+        url.push_str(format!(".json?page={}&limit={}", self.page, self.limit,).as_str());
+
+        if let Some(query) = self.query.as_deref() {
+            url.push_str(format!("&q={}", query).as_str())
+        }
+
+        if !self.fields.is_empty() {
+            url.push_str(format!("&fields={}", self.fields.join(",")).as_str())
+        }
+
+        url
     }
 }
 
@@ -129,8 +101,8 @@ mod tests {
                 ]
         });
 
-        let request = OpenlibraryRequest::search_request(&search);
-        let endpoint = &request.url[request.url.find("/search").unwrap()..];
+        let url = search.full_url();
+        let endpoint = &url[url.find("/search").unwrap()..];
 
         let _m = mock("GET", endpoint)
             .with_header("content-type", "application/json")
@@ -139,12 +111,12 @@ mod tests {
 
         let search_result = search.execute();
 
-        assert_eq!(search_result.num_found, 1);
-        assert_eq!(search_result.start, 0);
-        assert_eq!(search_result.num_found_exact, true);
-        assert_eq!(search_result.docs.len(), 1);
+        assert_eq!(search_result["numFound"], 1);
+        assert_eq!(search_result["start"], 0);
+        assert_eq!(search_result["numFoundExact"], true);
+        assert_eq!(search_result["docs"].as_array().unwrap().len(), 1);
 
-        let doc = &search_result.docs[0];
+        let doc = &search_result["docs"][0];
 
         assert_eq!(doc.get("key").unwrap().as_str().unwrap(), "/works/43242");
         assert_eq!(doc.get("title").unwrap().as_str().unwrap(), "test");
