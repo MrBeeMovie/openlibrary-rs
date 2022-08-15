@@ -63,6 +63,7 @@ const OPENLIBRARY_HOST: &str = "https://openlibrary.org";
 pub mod books;
 pub mod search;
 
+/// Trait representation of an Openlibrary request
 pub trait OpenlibraryRequest {
     fn host() -> String {
         #[cfg(not(test))]
