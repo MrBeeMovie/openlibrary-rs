@@ -44,6 +44,26 @@ impl OpenlibraryRequest for Books {
     }
 }
 
+#[derive(Builder, Default, Debug)]
+#[builder(setter(into), default)]
+pub struct BooksGeneric {
+    #[builder(default = "vec![]")]
+    bibkeys: Vec<String>,
+    #[builder(default = r#"String::from("viewapi")"#)]
+    jscmd: String,
+}
+
+impl OpenlibraryRequest for BooksGeneric {
+    fn url(&self) -> Url {
+        let mut params = Vec::new();
+        params.push(("format", String::from("json")));
+        params.push(("bibkeys", self.bibkeys.join(",")));
+        params.push(("jscmd", self.jscmd.clone()));
+
+        Url::parse_with_params(format!("{}/api/books", Self::host()).as_str(), params).unwrap()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use mockito::mock;
