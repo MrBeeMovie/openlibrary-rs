@@ -44,6 +44,9 @@ impl OpenlibraryRequest for Books {
     }
 }
 
+/// The struct representation of a request to the generic [Books API](https://openlibrary.org/dev/docs/api/books)
+///
+/// The fields of this struct are private. If you want to view available fields that can be set please look at the [`BooksGenericBuilder`] struct.
 #[derive(Builder, Default, Debug)]
 #[builder(setter(into), default)]
 pub struct BooksGeneric {

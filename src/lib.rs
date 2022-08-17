@@ -8,7 +8,7 @@
 //! There are currently 8 sub APIs offered by Openlibrary's Web API.
 //! You can check the table below to see the status of each.
 //!
-//! - [X] [Books](https://openlibrary.org/dev/docs/api/books) [^books_completeness]
+//! - [X] [Books](https://openlibrary.org/dev/docs/api/books)
 //! - [ ] [Authors](https://openlibrary.org/dev/docs/api/authors)
 //! - [ ] [Subjects](https://openlibrary.org/dev/docs/api/subjects)
 //! - [X] [Search](https://openlibrary.org/dev/docs/api/search)
@@ -35,6 +35,23 @@
 //!     println!("{:#?}", books.execute());
 //! ```
 //!
+//! You can view information about multiple books by using the [`books::BooksGeneric`] struct
+//!
+//! ``` rust
+//! use openlibrary_rs::books::{BookType, BooksGenericBuilder};
+//! use openlibrary_rs::OpenlibraryRequest;
+//!
+//! let books_generic = BooksGenericBuilder::default()
+//!     .bibkeys(vec![
+//!         "ISBN:0201558025".to_string(),
+//!         "LCCN:93005405".to_string(),
+//!     ])
+//!     .build()
+//!     .unwrap();
+//!
+//! println!("{:#?}", books_generic.execute());
+//! ```
+//!
 //! # Search
 //!
 //! You can search for books, authors, and more using the [`search::Search`] struct
@@ -51,8 +68,6 @@
 //!
 //! println!("{:#?}", search.execute());
 //! ```
-//!
-//! [^books_completeness]: Everything excluding the generic Books API is complete(i.e. Works, Editions, and ISBN APIs are done).
 //!
 use reqwest::Url;
 use serde_json::Value;
