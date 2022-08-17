@@ -87,7 +87,17 @@ pub trait OpenlibraryRequest {
         return mockito::server_url().to_string();
     }
 
-    fn url(&self) -> Url;
+    fn path(&self) -> String;
+
+    fn query(&self) -> Vec<(&'static str, String)>;
+
+    fn url(&self) -> Url {
+        Url::parse_with_params(
+            format!("{}{}", Self::host(), self.path()).as_str(),
+            self.query(),
+        )
+        .unwrap()
+    }
 
     fn execute(&self) -> Value {
         let response = reqwest::blocking::get(self.url()).unwrap();

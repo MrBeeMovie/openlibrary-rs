@@ -1,7 +1,6 @@
 use std::fmt::Display;
 
 use derive_builder::Builder;
-use reqwest::Url;
 
 use crate::OpenlibraryRequest;
 
@@ -48,18 +47,18 @@ pub struct Search {
 }
 
 impl OpenlibraryRequest for Search {
-    fn url(&self) -> Url {
+    fn path(&self) -> String {
+        format!("/search{}.json", self.search_type)
+    }
+
+    fn query(&self) -> Vec<(&'static str, String)> {
         let mut params = Vec::new();
         params.push(("page", self.page.to_string()));
         params.push(("limit", self.limit.to_string()));
         params.push(("q", self.query.as_deref().unwrap_or_default().to_string()));
         params.push(("fields", self.fields.join(",")));
 
-        Url::parse_with_params(
-            format!("{}/search{}.json", Self::host(), self.search_type,).as_str(),
-            params,
-        )
-        .unwrap()
+        params
     }
 }
 

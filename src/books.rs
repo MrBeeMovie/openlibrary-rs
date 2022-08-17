@@ -1,7 +1,6 @@
 use std::fmt::Display;
 
 use derive_builder::Builder;
-use reqwest::Url;
 
 use crate::OpenlibraryRequest;
 
@@ -19,9 +18,9 @@ impl Display for BookType {
             f,
             "{}",
             match self {
-                Self::Works => "works",
-                Self::Editions => "books",
-                Self::ISBN => "isbn",
+                Self::Works => "/works",
+                Self::Editions => "/books",
+                Self::ISBN => "/isbn",
             }
         )
     }
@@ -38,9 +37,12 @@ pub struct Books {
 }
 
 impl OpenlibraryRequest for Books {
-    fn url(&self) -> Url {
-        Url::parse(format!("{}/{}/{}.json", Self::host(), self.book_type, self.id).as_str())
-            .unwrap()
+    fn path(&self) -> String {
+        format!("{}/{}.json", self.book_type, self.id)
+    }
+
+    fn query(&self) -> Vec<(&'static str, String)> {
+        Vec::new()
     }
 }
 
@@ -57,13 +59,17 @@ pub struct BooksGeneric {
 }
 
 impl OpenlibraryRequest for BooksGeneric {
-    fn url(&self) -> Url {
+    fn path(&self) -> String {
+        String::from("/api/books")
+    }
+
+    fn query(&self) -> Vec<(&'static str, String)> {
         let mut params = Vec::new();
         params.push(("format", String::from("json")));
         params.push(("bibkeys", self.bibkeys.join(",")));
         params.push(("jscmd", self.jscmd.clone()));
 
-        Url::parse_with_params(format!("{}/api/books", Self::host()).as_str(), params).unwrap()
+        params
     }
 }
 
