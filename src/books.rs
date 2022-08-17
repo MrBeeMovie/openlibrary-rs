@@ -42,7 +42,7 @@ impl OpenlibraryRequest for Books {
     }
 
     fn query(&self) -> Vec<(&'static str, String)> {
-        Vec::new()
+        vec![]
     }
 }
 
@@ -64,18 +64,17 @@ impl OpenlibraryRequest for BooksGeneric {
     }
 
     fn query(&self) -> Vec<(&'static str, String)> {
-        let mut params = Vec::new();
-        params.push(("format", String::from("json")));
-        params.push(("bibkeys", self.bibkeys.join(",")));
-        params.push(("jscmd", self.jscmd.clone()));
-
-        params
+        vec![
+            ("format", String::from("json")),
+            ("bibkeys", self.bibkeys.join(",")),
+            ("jscmd", self.jscmd.clone()),
+        ]
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use mockito::mock;
+    use mockito::{mock, Matcher};
     use serde_json::json;
 
     use crate::OpenlibraryRequest;
@@ -92,7 +91,7 @@ mod tests {
             "key": "/works/1234"
         });
 
-        let _m = mock("GET", books.url().path())
+        let _m = mock("GET", Matcher::Regex(format!(r"{}\w*", books.url().path())))
             .with_header("content-type", "application/json")
             .with_body(json.to_string())
             .create();

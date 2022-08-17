@@ -52,13 +52,12 @@ impl OpenlibraryRequest for Search {
     }
 
     fn query(&self) -> Vec<(&'static str, String)> {
-        let mut params = Vec::new();
-        params.push(("page", self.page.to_string()));
-        params.push(("limit", self.limit.to_string()));
-        params.push(("q", self.query.as_deref().unwrap_or_default().to_string()));
-        params.push(("fields", self.fields.join(",")));
-
-        params
+        vec![
+            ("page", self.page.to_string()),
+            ("limit", self.limit.to_string()),
+            ("q", self.query.as_deref().unwrap_or_default().to_string()),
+            ("fields", self.fields.join(",")),
+        ]
     }
 }
 

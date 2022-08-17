@@ -84,7 +84,7 @@ pub trait OpenlibraryRequest {
         #[cfg(not(test))]
         return OPENLIBRARY_HOST.to_string();
         #[cfg(test)]
-        return mockito::server_url().to_string();
+        return mockito::server_url();
     }
 
     fn path(&self) -> String;
