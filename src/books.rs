@@ -79,10 +79,10 @@ mod tests {
 
     use crate::OpenlibraryRequest;
 
-    use super::BooksBuilder;
+    use super::{BooksBuilder, BooksGenericBuilder};
 
     #[test]
-    fn test_books_execute_valid_response() {
+    fn test_books_execute() {
         let books = BooksBuilder::default().id("1234").build().unwrap();
 
         let json = json!({
@@ -101,5 +101,49 @@ mod tests {
         assert_eq!(books_result["title"], "test");
         assert_eq!(books_result["description"], "this is a test");
         assert_eq!(books_result["key"], "/works/1234");
+    }
+
+    #[test]
+    fn test_books_generic_execute() {
+        let books_generic = BooksGenericBuilder::default()
+            .bibkeys(vec!["ISBN:0385472579".to_string()])
+            .build()
+            .unwrap();
+
+        let json = json!({
+            "ISBN:0385472579": {
+                "bib_key": "ISBN:0385472579",
+                "preview": "noview",
+                "thumbnail_url": "https://covers.openlibrary.org/b/id/240726-S.jpg",
+                "preview_url": "https://openlibrary.org/books/OL1397864M/Zen_speaks",
+                "info_url": "https://openlibrary.org/books/OL1397864M/Zen_speaks"
+            }
+        });
+
+        let _m = mock(
+            "GET",
+            Matcher::Regex(format!(r"{}\w*", books_generic.url().path())),
+        )
+        .with_header("content-type", "application/json")
+        .with_body(json.to_string())
+        .create();
+
+        let result = books_generic.execute();
+        let inner_result = &result["ISBN:0385472579"];
+
+        assert_eq!(inner_result["bib_key"], "ISBN:0385472579");
+        assert_eq!(inner_result["preview"], "noview");
+        assert_eq!(
+            inner_result["thumbnail_url"],
+            "https://covers.openlibrary.org/b/id/240726-S.jpg"
+        );
+        assert_eq!(
+            inner_result["preview_url"],
+            "https://openlibrary.org/books/OL1397864M/Zen_speaks"
+        );
+        assert_eq!(
+            inner_result["info_url"],
+            "https://openlibrary.org/books/OL1397864M/Zen_speaks"
+        );
     }
 }

@@ -71,7 +71,7 @@ mod tests {
     use super::SearchBuilder;
 
     #[test]
-    fn test_search_execute_valid_response() {
+    fn test_search_execute() {
         let search = SearchBuilder::default()
             .query("test")
             .fields(
