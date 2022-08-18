@@ -75,6 +75,7 @@ use serde_json::Value;
 #[allow(dead_code)]
 const OPENLIBRARY_HOST: &str = "https://openlibrary.org";
 
+pub mod authors;
 pub mod books;
 pub mod search;
 
