@@ -10,7 +10,7 @@ There are currently 8 sub APIs offered by Openlibrary's Web API.
 You can check the table below to see the status of each.
 
 - [X] [Books](https://openlibrary.org/dev/docs/api/books)
-- [ ] [Authors](https://openlibrary.org/dev/docs/api/authors)
+- [X] [Authors](https://openlibrary.org/dev/docs/api/authors)
 - [ ] [Subjects](https://openlibrary.org/dev/docs/api/subjects)
 - [X] [Search](https://openlibrary.org/dev/docs/api/search)
 - [ ] [Search inside](https://openlibrary.org/dev/docs/api/search_inside)
