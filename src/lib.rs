@@ -9,7 +9,7 @@
 //! You can check the table below to see the status of each.
 //!
 //! - [X] [Books](https://openlibrary.org/dev/docs/api/books)
-//! - [ ] [Authors](https://openlibrary.org/dev/docs/api/authors)
+//! - [X] [Authors](https://openlibrary.org/dev/docs/api/authors)
 //! - [ ] [Subjects](https://openlibrary.org/dev/docs/api/subjects)
 //! - [X] [Search](https://openlibrary.org/dev/docs/api/search)
 //! - [ ] [Search inside](https://openlibrary.org/dev/docs/api/search_inside)
@@ -25,7 +25,6 @@
 //! use openlibrary_rs::books::{BookType, BooksBuilder};
 //! use openlibrary_rs::OpenlibraryRequest;
 //!
-//! // execute request to Works API and pretty print debug of result
 //! let books = BooksBuilder::default()
 //!     .book_type(BookType::Works)
 //!     .id("OL45883W")
@@ -52,6 +51,18 @@
 //! println!("{:#?}", books_generic.execute());
 //! ```
 //!
+//! # Authors
+//!
+//! You can view information about authors or their works by using the [`authors::Authors`] struct
+//!
+//! ``` rust
+//! use openlibrary_rs::{authors::AuthorsBuilder, OpenlibraryRequest};
+//!
+//! let authors = AuthorsBuilder::default().id("OL23919A").build().unwrap();
+//!
+//! println!("{:#?}", authors.execute());
+//! ```
+//!
 //! # Search
 //!
 //! You can search for books, authors, and more using the [`search::Search`] struct
@@ -60,7 +71,6 @@
 //! use openlibrary_rs::search::SearchBuilder;
 //! use openlibrary_rs::OpenlibraryRequest;
 //!
-//! // execute search and pretty print debug of first result
 //! let search = SearchBuilder::default()
 //!     .query("the lord of the rings")
 //!     .build()
@@ -75,6 +85,7 @@ use serde_json::Value;
 #[allow(dead_code)]
 const OPENLIBRARY_HOST: &str = "https://openlibrary.org";
 
+pub mod authors;
 pub mod books;
 pub mod search;
 
