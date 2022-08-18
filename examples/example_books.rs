@@ -1,4 +1,4 @@
-use openlibrary_rs::books::{BookType, BooksBuilder, BooksGenericBuilder};
+use openlibrary_rs::books::{BookType, BooksBuilder};
 use openlibrary_rs::OpenlibraryRequest;
 
 fn main() {
@@ -9,14 +9,4 @@ fn main() {
         .unwrap();
 
     println!("{:#?}", books.execute());
-
-    let books_generic = BooksGenericBuilder::default()
-        .bibkeys(vec![
-            "ISBN:0201558025".to_string(),
-            "LCCN:93005405".to_string(),
-        ])
-        .build()
-        .unwrap();
-
-    println!("{:#?}", books_generic.execute());
 }
