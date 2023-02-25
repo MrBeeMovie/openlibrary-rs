@@ -10,7 +10,7 @@
 //!
 //! - [X] [Books](https://openlibrary.org/dev/docs/api/books)
 //! - [X] [Authors](https://openlibrary.org/dev/docs/api/authors)
-//! - [ ] [Subjects](https://openlibrary.org/dev/docs/api/subjects)
+//! - [X] [Subjects](https://openlibrary.org/dev/docs/api/subjects)
 //! - [X] [Search](https://openlibrary.org/dev/docs/api/search)
 //! - [ ] [Search inside](https://openlibrary.org/dev/docs/api/search_inside)
 //! - [ ] [Partner](https://openlibrary.org/dev/docs/api/read)
@@ -62,6 +62,20 @@
 //!
 //! println!("{:#?}", authors.execute());
 //! ```
+//! # Subjects
+//!
+//! You can view information about subjects by using the [`subject::Subjects`] struct
+//! ``` rust
+//! use openlibrary_rs::subject::SubjectsBuilder;
+//! use openlibrary_rs::OpenlibraryRequest;
+//!
+//! let subject = SubjectsBuilder::default()
+//!     .subject("fiction")
+//!     .published_in("2000-2009")
+//!     .build()
+//!     .unwrap();
+//! println!("{:#?}", subject.execute());
+//! ```
 //!
 //! # Search
 //!
@@ -88,6 +102,7 @@ const OPENLIBRARY_HOST: &str = "https://openlibrary.org";
 pub mod authors;
 pub mod books;
 pub mod search;
+pub mod subject;
 
 /// Trait representation of an Openlibrary request
 pub trait OpenlibraryRequest {

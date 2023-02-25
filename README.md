@@ -11,7 +11,7 @@ You can check the table below to see the status of each.
 
 - [X] [Books](https://openlibrary.org/dev/docs/api/books)
 - [X] [Authors](https://openlibrary.org/dev/docs/api/authors)
-- [ ] [Subjects](https://openlibrary.org/dev/docs/api/subjects)
+- [X] [Subjects](https://openlibrary.org/dev/docs/api/subjects)
 - [X] [Search](https://openlibrary.org/dev/docs/api/search)
 - [ ] [Search inside](https://openlibrary.org/dev/docs/api/search_inside)
 - [ ] [Partner](https://openlibrary.org/dev/docs/api/read)
